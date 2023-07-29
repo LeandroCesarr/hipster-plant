@@ -6,6 +6,11 @@
   Data: 22/07/2023
 */
 
+/* Libraries includes */
+/*                    */
+
+#include "main_env.h"
+
 /*
   Entry point
 */
