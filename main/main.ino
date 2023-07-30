@@ -13,6 +13,8 @@
 #define ESP8266_BAUD 9600
 #define SEND_DATA_INTERVAL_IN_SECONDS 2
 
+#define MOISTURE_PORT A0
+
 /* Libraries includes */
 #include <ESP8266_Lib.h>
 #include <BlynkSimpleShieldEsp8266.h>
@@ -28,6 +30,7 @@ ESP8266 ESP8266_MODULE(&EspSerial);
 void setup() {
   // Debug console
   Serial.begin(ESP8266_BAUD);
+  setup_ports();
   setup_blynk();
 }
 
@@ -39,6 +42,10 @@ void loop() {
   timer.run();
 }
 
+void setup_ports() {
+  pinMode(MOISTURE_PORT, INPUT);
+}
+
 void setup_blynk() {
   EspSerial.begin(ESP8266_BAUD);
   delay(10);
@@ -47,4 +54,18 @@ void setup_blynk() {
   timer.setInterval(1000L * SEND_DATA_INTERVAL_IN_SECONDS, send_data_to_blynk);
 }
 
-void send_data_to_blynk() {}
+void send_data_to_blynk() {
+  int current_moisture = get_moisture_percentage();
+
+  Blynk.virtualWrite(V0, current_moisture);
+  Serial.println("Current moisture: " + String(current_moisture) + "%");
+  Serial.println();
+}
+
+int get_moisture_percentage() {
+  return parse_analog_read_to_percentage(analogRead(MOISTURE_PORT));
+}
+
+int parse_analog_read_to_percentage(int value) {
+  return (100 - ((value/1023.00) * 100 ));
+}
